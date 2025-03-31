@@ -3,6 +3,7 @@ name: testingCScliPublish Python Package
 on: workflow_dispatch
 permissions:
   id-token: write
+  contents: read
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -14,8 +15,8 @@ jobs:
       - name: Install Cloudsmith CLI
         uses: cloudsmith-io/cloudsmith-cli-action@v1.0.3
         with:
-          oidc-namespace: 'your-oidc-namespace'
-          oidc-service-slug: 'your-service-account-slug'
+          oidc-namespace: 'interview-mudit-jain'
+          oidc-service-slug: 'mudit'
 
       - name: Push package to Cloudsmith
         run: |
