@@ -1,8 +1,10 @@
+name: Publish Python Package
+
 on: workflow_dispatch
 permissions:
   id-token: write
 jobs:
-  install-cloudsmith-cli:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -10,11 +12,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Cloudsmith CLI
-        uses: cloudsmith-io/cloudsmith-cli-action@v1.0.0
+        uses: cloudsmith-io/cloudsmith-cli-action@v1.0.3
         with:
-          oidc-namespace: 'muditns'
-          oidc-service-slug: 'muditsvc'
+          oidc-namespace: 'your-oidc-namespace'
+          oidc-service-slug: 'your-service-account-slug'
 
-      - name: Verify Cloudsmith CLI Installation
+      - name: Push package to Cloudsmith
         run: |
-          cloudsmith --version
+          cloudsmith push python your-namespace/your-repository dist/*.tar.gz
