@@ -3,7 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-
+name = "my-package"  # Replace with the name of your package
+version = "0.1.0"    # Replace with your package version
 authors = [
   { name="Example Author", email="author@example.com" },
 ]
