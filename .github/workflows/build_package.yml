@@ -36,8 +36,10 @@ jobs:
 
       - name: Build package
         run: |
-          pip install hatchling build  # Install hatchling and build module
-          python -m build
+          #pip install hatchling build  # Install hatchling and build module
+          #python -m build
+          pip install hatchling
+          hatch build 
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
