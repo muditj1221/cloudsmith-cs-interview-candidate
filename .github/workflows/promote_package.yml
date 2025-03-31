@@ -33,9 +33,12 @@ jobs:
         run: |
           # Query for the package and get its identifier
           # PACKAGE_QUERY="$PACKAGE_NAME-${{ github.event.inputs.package_version }}.tar.gz
-          PACKAGE_QUERY="${{ env.PACKAGE_NAME }}-${{ github.event.inputs.package_version }}.tar.gz"
+          # PACKAGE_QUERY="${{ env.PACKAGE_NAME }}-${{ github.event.inputs.package_version }}.tar.gz"
+          PACKAGE_QUERY="filename:${PACKAGE_NAME}-${{ github.event.inputs.package_version }}.tar.gz" 
           echo "Searching for package with query: $PACKAGE_QUERY"
-          
+          echo "checking issue"
+          sleep 20    
+
           PACKAGE_DATA=$(cloudsmith list package ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_PRODUCTION_REPO }} -q "example_package-0.1.0.tar.gz" -F json)
           
           # Extract the identifier_perm using jq
