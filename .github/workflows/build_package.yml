@@ -35,11 +35,9 @@ jobs:
           pip install build
 
       - name: Build package
-        run: pip install --user hatch
-      - name: Add Hatch to PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - name: Verify Hatch Installation
-        run: hatch --version
+        run: |
+          pip install hatchling build  # Install hatchling and build module
+          python -m build
 
       - name: Build Package with Hatch
         run: hatch build    
