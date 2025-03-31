@@ -13,7 +13,7 @@ env:
   CLOUDSMITH_STAGING_REPO: 'production'
   CLOUDSMITH_PRODUCTION_REPO: 'staging'
   CLOUDSMITH_SERVICE_SLUG: ${{ vars.CLOUDSMITH_SERVICE_SLUG }}
-  PACKAGE_NAME: 'example-package'
+  PACKAGE_NAME: 'example_package'
 
 permissions:
   id-token: write
@@ -34,9 +34,9 @@ jobs:
           # Query for the package and get its identifier
           # PACKAGE_QUERY="$PACKAGE_NAME-${{ github.event.inputs.package_version }}.tar.gz
           PACKAGE_QUERY="${{ env.PACKAGE_NAME }}-${{ github.event.inputs.package_version }}.tar.gz"
-          echo "Searching for package with query:" $PACKAGE_QUERY
+          echo "Searching for package with query: $PACKAGE_QUERY"
           
-          PACKAGE_DATA=$(cloudsmith list package ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_PRODUCTION_REPO }} -q "$PACKAGE_QUERY" -F json)
+          PACKAGE_DATA=$(cloudsmith list package ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_PRODUCTION_REPO }} -q "example_package-0.1.0.tar.gz" -F json)
           
           # Extract the identifier_perm using jq
           IDENTIFIER=$(echo "$PACKAGE_DATA" | jq -r '.data[0].identifier_perm')
