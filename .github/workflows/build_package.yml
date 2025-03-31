@@ -35,7 +35,11 @@ jobs:
           pip install build
 
       - name: Build package
-        run: poetry build
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH  # Add Poetry to the path
+          poetry install  # Install dependencies from pyproject.toml
+          poetry build  # Build the package
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
