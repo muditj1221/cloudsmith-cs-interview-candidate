@@ -35,12 +35,15 @@ jobs:
           pip install build
 
       - name: Build package
-        run: |
-          #pip install hatchling build  # Install hatchling and build module
-          #python -m build
-          pip install hatchling
-          hatch build 
+        run: pip install --user hatch
+      - name: Add Hatch to PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Verify Hatch Installation
+        run: hatch --version
 
+      - name: Build Package with Hatch
+        run: hatch build    
+ 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
