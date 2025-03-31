@@ -35,9 +35,7 @@ jobs:
           pip install build
 
       - name: Build package
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
+        run: python setup.py sdist bdist_wheel
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
