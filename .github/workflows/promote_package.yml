@@ -1,17 +1,13 @@
 name: Promote Python Package
 
 on:
-  workflow_dispatch:
-    inputs:
-      package_version:
-        description: 'Package version to promote (e.g., 0.0.1)'
-        required: true
-        type: string
+  repository_dispatch:
+    types: [cloudsmith-package-synced]  # This will trigger when Cloudsmith sends a webhook
 
 env:
   CLOUDSMITH_NAMESPACE: ${{ vars.CLOUDSMITH_NAMESPACE }}
-  CLOUDSMITH_STAGING_REPO: 'production'
-  CLOUDSMITH_PRODUCTION_REPO: 'staging'
+  CLOUDSMITH_STAGING_REPO: 'staging'
+  CLOUDSMITH_PRODUCTION_REPO: 'production'
   CLOUDSMITH_SERVICE_SLUG: ${{ vars.CLOUDSMITH_SERVICE_SLUG }}
   PACKAGE_NAME: 'example_package'
 
@@ -29,16 +25,25 @@ jobs:
           oidc-namespace: ${{ env.CLOUDSMITH_NAMESPACE }}
           oidc-service-slug: ${{ env.CLOUDSMITH_SERVICE_SLUG }}
 
-      - name: Get package identifier and promote
+      - name: Extract package version from webhook
         run: |
-          # Query for the package and get its identifier
-          PACKAGE_QUERY="filename:${PACKAGE_NAME}-${{ github.event.inputs.package_version }}.tar.gz"
-          echo "Searching for package with query: $PACKAGE_QUERY"
-          echo "checking issue"
-          #sleep 20    
+          echo "Package version from webhook: ${{ github.event.client_payload.package_version }}"
+          echo "PACKAGE_VERSION=${{ github.event.client_payload.package_version }}" >> $GITHUB_ENV
 
-          #PACKAGE_DATA=$(cloudsmith list package ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_PRODUCTION_REPO }} -q "example_package-0.1.0.tar.gz" -F json)
-          PACKAGE_DATA=$(cloudsmith list package ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_PRODUCTION_REPO }} -q "$PACKAGE_QUERY" -F json)
+      - name: Tag package as "ready-for-production"
+        run: |
+          cloudsmith tag add \
+            ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_STAGING_REPO }}/$PACKAGE_NAME-${PACKAGE_VERSION} \
+            ready-for-production
+
+      - name: Get package identifier for promotion
+        run: |
+          # Query all packages tagged as "ready-for-production"
+          PACKAGE_QUERY="tag:ready-for-production"
+          echo "Searching for package with query: $PACKAGE_QUERY"
+
+          PACKAGE_DATA=$(cloudsmith list package ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_STAGING_REPO }} -q "$PACKAGE_QUERY" -F json)
+
           # Extract the identifier_perm using jq
           IDENTIFIER=$(echo "$PACKAGE_DATA" | jq -r '.data[0].identifier_perm')
           
@@ -48,9 +53,10 @@ jobs:
           fi
           
           echo "Found package identifier: $IDENTIFIER"
-          
-          # Promote package using the identifier
+          echo "PACKAGE_IDENTIFIER=$IDENTIFIER" >> $GITHUB_ENV
+
+      - name: Promote package to production
+        run: |
           cloudsmith mv --yes \
-            ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_PRODUCTION_REPO }}/$IDENTIFIER \
-            ${{ env.CLOUDSMITH_STAGING_REPO }}
-        shell: bash
+            ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_STAGING_REPO }}/$PACKAGE_IDENTIFIER \
+            ${{ env.CLOUDSMITH_PRODUCTION_REPO }}
