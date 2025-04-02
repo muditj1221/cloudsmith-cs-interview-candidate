@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "testing_package"  # Replace with the name of your package
-version = "122"    # Replace with your package version
+version = "0.1.0"    # Replace with your package version
 authors = [
   { name="Example Author", email="author@example.com" },
 ]
